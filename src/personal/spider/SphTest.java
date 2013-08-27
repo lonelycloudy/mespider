@@ -1,0 +1,1 @@
+/***F:\javaworkspace\Heritrix\src>javac -d . personal\spider\SphTest.java*F:\javaworkspace\Heritrix\src>java -cp .\ personal.spider.SphTest*Java-Sphinx สนำร *20130822 lx*/package personal.spider;import org.sphx.api.*;class SphTest{		public  static void main(String[] args){			} }
