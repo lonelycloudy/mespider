@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<crawler>
+	<firstPage>
+		<name>firstPage</name>
+		<pattern>http\:\/\/bbs\.tianya\.cn\/list\-\d+\-\d+\.shtml</pattern>
+		<value>http://bbs.tianya.cn/list-79-1.shtml</value>
+	</firstPage>
+	<seed>
+		<name>seed</name>
+		<pattern>http\:\/\/bbs\.tianya\.cn\/list\-\d+\-\d+\.shtml</pattern>
+		<value>http://bbs.tianya.cn/list-79-1.shtml</value>
+	</seed>
+	<singlePage>
+		<name>singlePage</name>
+		<pattern>http\:\/\/bbs\.tianya\.cn\/post\-79+\-\d+\.shtml</pattern>
+		<value>http://bbs.tianya.cn/post-79-575154-1.shtml</value>
+	</singlePage>
+</crawler>

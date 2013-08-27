@@ -1,0 +1,1 @@
+/***javac -d . personal/util/PersonalSphx.java*java -cp .\ personal.util.PersonalSphx*Java-Sphinx 使用 *20130822 lx*/package personal.util;import org.sphx.api.*;class PersonalSphx{		public  static void main(String[] args){		//		return ;	} }
