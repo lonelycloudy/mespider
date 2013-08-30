@@ -86,7 +86,7 @@ public class PersonalJdbc {
 	boolean deleteSQL(String sql){
 		try{
 			mStatement = mConnection.prepareStatement(sql);
-			mStatement.executeQuery(sql);
+			mStatement.executeUpdate(sql);
 			return true;
 		}catch(SQLException e){
 			System.out.println("delete table Error");
@@ -112,13 +112,13 @@ public class PersonalJdbc {
 	}
 	//fetch data list in tables
 	void fetchList(ResultSet rs){
-		System.out.println("ResultSet List id /t/t date /t/t title /t/t content /t/t");
+		System.out.println("ResultSet List id \t\t date \t\t title \t\t content \t\t");
 		try{
 			while(rs.next()){
-				System.out.println(rs.getInt("id")+"/t/t"
-						+rs.getDate("date_added")+"/t/t"
-						+rs.getString("title")+"/t/t"
-						+rs.getString("content")+"/t/t"
+				System.out.println(rs.getInt("id")+"\t\t"
+						+rs.getDate("date_added")+"\t\t"
+						+rs.getString("title")+"\t\t"
+						+rs.getString("content")+"\t\t"
 						);
 			}
 		} catch(SQLException e){
@@ -129,15 +129,16 @@ public class PersonalJdbc {
 			e.printStackTrace();
 		}
 	}
-	//use demo:insert update
+	//use demo:insert ,delete,update,select
 	public static void main(String args[]) throws SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException{
 		PersonalJdbc jd = new PersonalJdbc();
 		jd.getConnection();
 		String sql = "select * from documents";
-		SimpleDateFormat df = new SimpleDateFormat("yyyy-m-dd HH:mm:ss");
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss");//kk for 24,h for 12
 		String current = df.format(new Date());
 		String insert = "insert into documents(group_id,group_id2,date_added,title,content) VALUES ("+2+","+9+",'"+current+"','titlejava','contentjava')";
 		String update = "update documents set group_id2=11 where id=5";
+		String delete = "DELETE FROM documents ORDER BY id DESC LIMIT 1";
 		System.out.println(insert);
 		if(jd.insertSQL(insert) == true){
 			System.out.println("insert successfully");
@@ -146,6 +147,11 @@ public class PersonalJdbc {
 		}
 		if(jd.updateSQL(update) == true){
 			System.out.println("update successfully");
+			ResultSet rs = jd.selectSQL(sql);
+			jd.fetchList(rs);
+		}
+		if(jd.deleteSQL(delete) == true){
+			System.out.println("delete successfully");
 			ResultSet rs = jd.selectSQL(sql);
 			jd.fetchList(rs);
 		}

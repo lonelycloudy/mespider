@@ -92,7 +92,7 @@ public class SinaExtractor extends Extractor {
 					Element ePubdate = article.getElementById("pub_date");
 					String pubdate = ePubdate.text();
 					//pubdate = new String(pubdate.getBytes());//utf-8 gb2312
-					Element eSource = article.getElementById("media_name");
+					/*Element eSource = article.getElementById("media_name");
 					String source = "";
 					String sourceUrl="";
 					try{
@@ -101,12 +101,12 @@ public class SinaExtractor extends Extractor {
 					}catch(Exception e){
 						 source  = eSource.text();
 						 sourceUrl  = "";
-					}
+					}*/
 					//source = new String(source.getBytes());
 					Element eContent = article.getElementById("artibody");
 					String itemcontent = eContent.html();
 					//itemcontent = new String(itemcontent.getBytes());
-					System.out.println("EI:"+"title"+title+"pubdate"+pubdate+"source"+source+"sourceUrl"+sourceUrl);
+					System.out.println("EI:"+"title"+title+"pubdate"+pubdate);//+"source"+source+"sourceUrl"+sourceUrl
 					this.addLinkFromString(curi,url,"",Link.NAVLINK_HOP);
 				}
 			}else{
