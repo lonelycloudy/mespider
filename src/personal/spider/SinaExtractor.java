@@ -15,6 +15,9 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
 import  org.archive.crawler.extractor.Extractor;
 import org.apache.commons.httpclient.URIException;
 import org.archive.crawler.datamodel.CrawlURI;
@@ -27,6 +30,12 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+import personal.util.Test;
+import personal.util.TestJson;
+import personal.util.PersonalRedis;
+import personal.util.PersonalMd5;
+
 /**
  * extends Extractor for Filter tianya url
  * 提取URL匹配
@@ -80,53 +89,56 @@ public class SinaExtractor extends Extractor {
 		String content = cs.toString();
 		//byte[] content1 = content.getBytes(Charset.forName("ISO-8859-1"));
 		//String content2 = new String(content.getBytes(Charset.forName("gb2312")),Charset.forName("utf-8"));
-		try{		
-			Document listdoc = Jsoup.parse(content);
-			//jsoup parse String to Document 2013-08-02
-			if(url.contains("http://tech.sina.com.cn/t/")){
-				Elements articles = listdoc.select("div.blkContainer");
-				System.out.println("Y2");
-				for(Element article : articles){
-					Element eTitle = article.getElementById("artibodyTitle");
-					String title = eTitle.text();
-					Element ePubdate = article.getElementById("pub_date");
-					String pubdate = ePubdate.text();
-					//pubdate = new String(pubdate.getBytes());//utf-8 gb2312
-					/*Element eSource = article.getElementById("media_name");
-					String source = "";
-					String sourceUrl="";
-					try{
-						 source  = eSource.child(0).text();
-						 sourceUrl  = eSource.child(0).attr("href");
-					}catch(Exception e){
-						 source  = eSource.text();
-						 sourceUrl  = "";
-					}*/
-					//source = new String(source.getBytes());
-					Element eContent = article.getElementById("artibody");
-					String itemcontent = eContent.html();
-					//itemcontent = new String(itemcontent.getBytes());
-					System.out.println("EI:"+"title"+title+"pubdate"+pubdate);//+"source"+source+"sourceUrl"+sourceUrl
-					this.addLinkFromString(curi,url,"",Link.NAVLINK_HOP);
-				}
-			}else{
-				Elements mainrow = listdoc.select("div.main_row");
-				System.out.println("Y");
-				for(Element row : mainrow){
-					Elements links = row.getElementsByTag("a");
-					for (Element link : links) {
-					  String linkHref = link.attr("href");
-					  String linkText = link.text();
-					  //linkText = new String(linkText.getBytes());
-					  if(linkHref != "" && linkHref.contains("http://tech.sina.com.cn/t/")){ 
-						  System.out.println("L:"+linkHref+",T:"+linkText);
-						  this.addLinkFromString(curi,linkHref,"",Link.NAVLINK_HOP);
-					  }
+		if(url.contains("dns:")){
+			this.addLinkFromString(curi,url,"",Link.NAVLINK_HOP);
+		}else{
+			String currentChannel = Test.generateChannel(url);//from url to channel
+	    	JSONObject  channelRule = TestJson.fetchChannelRule(currentChannel);//fetch rule with channel
+	    	try{
+				String listRule = channelRule.getString("listRule");
+		    	String channel = channelRule.getString("channel");//explain channel's redis content
+				String seedURL = channelRule.getString("seedURL");
+				JSONArray urlPattern = channelRule.getJSONArray("urlPattern");
+				JSONObject singleRule = channelRule.getJSONObject("singleRule");
+				try{		
+					Document listdoc = Jsoup.parse(content);
+					//jsoup parse String to Document 2013-08-02
+					if(url.equals(seedURL)){//list page
+						Elements mainrow = listdoc.select(listRule);//"div.main_row"
+						System.out.println("Y");
+						for(Element row : mainrow){
+							Elements links = row.getElementsByTag("a");
+							for (Element link : links) {
+							  String linkHref = link.attr("href");
+							  String linkText = link.text();
+							  //linkText = new String(linkText.getBytes());
+							  if(linkHref != ""){//&& linkHref.contains("http://tech.sina.com.cn/t/" 
+								  System.out.println("L:"+linkHref+",T:"+linkText);
+								  this.addLinkFromString(curi,linkHref,"",Link.NAVLINK_HOP);
+							  }
+							}
+						}
+					}else{//single page
+						//Elements articles = listdoc.select("div.blkContainer");
+						System.out.println("Y2");
+						//for(Element article : articles){}
+						Element eTitle = listdoc.getElementById("artibodyTitle");
+						String title = eTitle.text();
+						Element ePubdate = listdoc.getElementById("pub_date");
+						String pubdate = listdoc.text();
+
+						Element eContent = listdoc.getElementById("artibody");
+						String itemcontent = eContent.html();
+						//itemcontent = new String(itemcontent.getBytes());
+						System.out.println("EI:"+"title"+title+"pubdate"+pubdate);//+"source"+source+"sourceUrl"+sourceUrl
+						this.addLinkFromString(curi,url,"",Link.NAVLINK_HOP);
 					}
+				} catch(Exception e){
+					e.printStackTrace();
 				}
+			}catch(Exception e){
+				e.printStackTrace();
 			}
-		} catch(Exception e){
-			e.printStackTrace();
 		}
 	}
 	//将链接记录保存下来,以备后续处理
