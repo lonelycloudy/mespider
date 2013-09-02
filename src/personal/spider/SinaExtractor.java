@@ -96,38 +96,44 @@ public class SinaExtractor extends Extractor {
 	    	JSONObject  channelRule = TestJson.fetchChannelRule(currentChannel);//fetch rule with channel
 	    	try{
 				String listRule = channelRule.getString("listRule");
-		    	String channel = channelRule.getString("channel");//explain channel's redis content
+		    	//String channel = channelRule.getString("channel");//explain channel's redis content
 				String seedURL = channelRule.getString("seedURL");
-				JSONArray urlPattern = channelRule.getJSONArray("urlPattern");
-				JSONObject singleRule = channelRule.getJSONObject("singleRule");
+				//JSONArray urlPattern = channelRule.getJSONArray("urlPattern");
+				JSONObject singleRule = channelRule.getJSONObject("singleRule");//single page content rule
+				String itemRule = channelRule.getString("itemRule");//list a page
 				try{		
 					Document listdoc = Jsoup.parse(content);
 					//jsoup parse String to Document 2013-08-02
 					if(url.equals(seedURL)){//list page
+						System.out.println("Seed"+listRule);
 						Elements mainrow = listdoc.select(listRule);//"div.main_row"
 						System.out.println("Y");
-						for(Element row : mainrow){
+						for(Element row : mainrow){//all a element in seed page
 							Elements links = row.getElementsByTag("a");
 							for (Element link : links) {
 							  String linkHref = link.attr("href");
 							  String linkText = link.text();
 							  //linkText = new String(linkText.getBytes());
 							  if(linkHref != ""){//&& linkHref.contains("http://tech.sina.com.cn/t/" 
-								  System.out.println("L:"+linkHref+",T:"+linkText);
-								  this.addLinkFromString(curi,linkHref,"",Link.NAVLINK_HOP);
+								  System.out.println("GET: "+linkHref);
+								  if(linkHref.matches(itemRule)){//match list page's item
+									  System.out.println("Match: "+linkHref+",T:"+linkText);
+									  this.addLinkFromString(curi,linkHref,"",Link.NAVLINK_HOP);
+								  }
 							  }
 							}
 						}
 					}else{//single page
+						System.out.println("Single");
 						//Elements articles = listdoc.select("div.blkContainer");
 						System.out.println("Y2");
 						//for(Element article : articles){}
-						Element eTitle = listdoc.getElementById("artibodyTitle");
+						//Element eTitle = listdoc.getElementById("artibodyTitle");
+						Element eTitle = listdoc.select(singleRule.getString("title")).first(); 
 						String title = eTitle.text();
-						Element ePubdate = listdoc.getElementById("pub_date");
-						String pubdate = listdoc.text();
-
-						Element eContent = listdoc.getElementById("artibody");
+						Element ePubdate = listdoc.select(singleRule.getString("pubdate")).first();
+						String pubdate = ePubdate.text();
+						Element eContent = listdoc.select(singleRule.getString("content")).first();
 						String itemcontent = eContent.html();
 						//itemcontent = new String(itemcontent.getBytes());
 						System.out.println("EI:"+"title"+title+"pubdate"+pubdate);//+"source"+source+"sourceUrl"+sourceUrl

@@ -72,38 +72,37 @@ public class FrontierSchedulerForSina extends FrontierScheduler {
     	}else{
     		String currentChannel = Test.generateChannel(uri);//from url to channel
         	JSONObject  channelRule = TestJson.fetchChannelRule(currentChannel);//fetch rule with channel
-        	
-    		String channel = channelRule.getString("channel");//explain channel's redis content
+        	if(channelRule == null){
+        		System.out.println("NO-Channel-RULE");
+        		return;
+        	}
+    		//String channel = channelRule.getString("channel");//explain channel's redis content
     		String seedURL = channelRule.getString("seedURL");
-    		JSONArray urlPattern = channelRule.getJSONArray("urlPattern");
-    		JSONObject ruleList = channelRule.getJSONObject("ruleList");
+    		String itemRule = channelRule.getString("itemRule");//list a page
+    		//JSONArray urlPattern = channelRule.getJSONArray("urlPattern");
+    		//JSONObject ruleList = channelRule.getJSONObject("ruleList");
     		if(uri.equals(seedURL)){//seed page
-    			System.out.println("MSEED"+uri);
+    			System.out.println("FSEED"+uri);
     			getController().getFrontier().schedule(caUri);
     		}else{//single page 
-    			for(int i=0;i<urlPattern.size();i++){
-    				System.out.println("MPattern"+urlPattern.getString(i));
-    				if(uri.matches(urlPattern.getString(i))){//need spider single page
-    					System.out.println("MSingle-Y"+uri);
-    					try {//need check unique or not,then check
-    						String md5url = PersonalMd5.MyMd5(uri.getBytes());
-    						boolean flag = PersonalRedis.getRedisUniqueInfo(md5url);
-    						if(flag == true){//has that
-    							System.out.println("MHAS");
-    						}else {//not has
-    							System.out.println("MNHAS");
-    							getController().getFrontier().schedule(caUri);
-    						}
-    					} catch (NoSuchAlgorithmException e) {
-    						// TODO Auto-generated catch block
-    						e.printStackTrace();
-    					}
-    					break;
-    				}else{//other single page,don't spider
-    					System.out.println("MSingle-N"+uri);
-    					continue;
-    				}
-    			}
+    			if(uri.matches(itemRule.toString())){//need spider single page
+					System.out.println("MSY"+uri);
+					try {//need check unique or not,then check
+						String md5url = PersonalMd5.MyMd5(uri.getBytes());
+						boolean flag = PersonalRedis.getRedisUniqueInfo(md5url);
+						if(flag == true){//has that
+							System.out.println("FY");
+						}else {//not has
+							System.out.println("FN");
+							getController().getFrontier().schedule(caUri);
+						}
+					} catch (NoSuchAlgorithmException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}else{//other single page,don't spider
+					System.out.println("MS-N"+uri);
+				}
     		}
     	}
     	

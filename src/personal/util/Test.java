@@ -1,4 +1,8 @@
 package personal.util;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * 底层函数实现,Java函数编写示例
  * ��:Mysql,Redis,Sphinxʵ��ʾ��
@@ -7,7 +11,16 @@ public class Test{
 	
 	public static void main(String[] args){
 	    //Test.generateChannel("http://tech.sina.com.cn/t/2012-11-12/12247790473.shtml");
-	   return ;
+	    String a = "http://tech.sina.com.cn/t/apple/2013-08-28/03238682257.shtml";
+	    String b = "http://tech.sina.com.cn/t/2013-08-27/01188677643.shtml";
+	    String c = "http://roll.tech.sina.com.cn/tele/gj/index.shtml";
+	    System.out.println("A: "+a);
+	    System.out.println(checkstr(a));
+	    System.out.println("B: "+b);
+	    System.out.println(checkstr(b));
+	    System.out.println("C: "+c);
+	    System.out.println(checkstr(c));
+		return ;
 	}
 	/**
 	 * Fetch Single Page,then generate channel,
@@ -34,6 +47,16 @@ public class Test{
 		   System.out.println("Channel:"+url_new);
 		   return url_new;
 	}
+	public static boolean checkstr(String str){
+		//Pattern itemRule1 = Pattern.compile("http:\\/\\/tech\\.sina\\.com\\.cn\\/t\\/([0-9]{4})-([0-9]{2})-([0-9]{2})/\\d+\\.shtml$");
+		//Pattern itemRule = Pattern.compile("http://tech\\.sina\\.com\\.cn/t/\\d+-\\d+-\\d+/\\d+\\.shtml");//java: before \ need add \ again,\\d
+		//Matcher linkHrefm = itemRule.matcher(str);
+		String pattern = "http:\\/\\/tech\\.sina\\.com\\.cn\\/t\\/([0-9]{4})-([0-9]{2})-([0-9]{2})/\\d+\\.shtml$".toString();
+		String pattern1 = "http://tech\\.sina\\.com\\.cn/t/\\d+-\\d+-\\d+/\\d+\\.shtml";
+		System.out.println(pattern);
+		boolean flag = str.matches(pattern);
+		return flag;
+	} 
 }
 /**
 javac -d . personal/util/Test.java
