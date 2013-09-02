@@ -139,6 +139,15 @@ public class PersonalRedis{
 		}
 		return uidx;
     }
+	/**
+	 * 更新排重库:6380/0:get f2430a82b14a1a5558710c87f91464c4:22027210@1376531057
+	 * */
+	public static String setRedisLabsURL(String md5url,String data){
+		Jedis jedis = new Jedis(PersonalRedis.redis_host,PersonalRedis.aggregate_port);
+		jedis.select(PersonalRedis.aggregate_table);
+		String flag = jedis.set(md5url,data);
+		return flag;
+	}
 	/*
 	 //@Test
     public void useWithoutConnecting() {

@@ -69,7 +69,7 @@ public class PersonalJdbc {
 		return rs;
 	}
 	//execute insert 
-	boolean insertSQL(String sql){
+	public boolean insertSQL(String sql){
 		try{
 			mStatement = mConnection.prepareStatement(sql);
 			mStatement.executeUpdate(sql);
@@ -83,7 +83,7 @@ public class PersonalJdbc {
 		return false;
 	}
 	//execute delete
-	boolean deleteSQL(String sql){
+	public boolean deleteSQL(String sql){
 		try{
 			mStatement = mConnection.prepareStatement(sql);
 			mStatement.executeUpdate(sql);
@@ -98,7 +98,7 @@ public class PersonalJdbc {
 		return false;
 	}
 	//execute update 
-	boolean updateSQL(String sql){
+	public boolean updateSQL(String sql){
 		try{
 			mStatement = mConnection.prepareStatement(sql);
 			mStatement.executeUpdate(sql);
@@ -111,7 +111,7 @@ public class PersonalJdbc {
 		return false;
 	}
 	//fetch data list in tables
-	void fetchList(ResultSet rs){
+	public void fetchList(ResultSet rs){
 		System.out.println("ResultSet List id \t\t date \t\t title \t\t content \t\t");
 		try{
 			while(rs.next()){

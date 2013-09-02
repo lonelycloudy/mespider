@@ -90,9 +90,9 @@ public class FrontierSchedulerForSina extends FrontierScheduler {
 					try {//need check unique or not,then check
 						String md5url = PersonalMd5.MyMd5(uri.getBytes());
 						boolean flag = PersonalRedis.getRedisUniqueInfo(md5url);
-						if(flag == true){//has that
+						if(flag == true){//has spider that
 							System.out.println("FY");
-						}else {//not has
+						}else {//hasn't spider thath
 							System.out.println("FN");
 							getController().getFrontier().schedule(caUri);
 						}
