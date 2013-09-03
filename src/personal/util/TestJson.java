@@ -28,6 +28,7 @@ public class TestJson {
 	public static JSONObject createJSONObject(String channel,String seedURL,String listRule){
          JSONObject jsonObject = new JSONObject();
          //jsonObject.put("channel", "cn.com.sina.tech");
+         jsonObject.put("charset", "gb2312");
          jsonObject.put("channel", channel);
          //jsonObject.put("Max.score", new Integer(100));
          jsonObject.put("seedURL", seedURL);
@@ -35,11 +36,10 @@ public class TestJson {
          //String pattern = "http://tech\\.sina\\.com\\.cn/t/\\d+-\\d+-\\d+/\\d+\\.shtml";
          //String pattern = "http:\\/\\/tech\\.sina\\.com\\.cn\\/t\\/([0-9]{4})-([0-9]{2})-([0-9]{2})/\\d+\\.shtml$".toString();
          jsonObject.put("itemRule", "http://tech\\.sina\\.com\\.cn/t/\\d+-\\d+-\\d+/\\d+\\.shtml");
-         System.out.println("jsonObject==>"+jsonObject);
-         JSONArray jsonArray = new JSONArray();
-         jsonArray.add(0, "http://tech\\.sina\\.com\\.cn/t/\\w/\\d+-\\d+-\\d+\\d+\\.shtml");//spider single url pattern
-         jsonArray.add(1,"http://tech\\.sina\\.com\\.cn/t/\\d+-\\d+-\\d+\\d+\\.shtml");//spider single url pattern,when php use(\\->\\\\)
-         jsonObject.element("urlPattern", jsonArray);
+         //JSONArray jsonArray = new JSONArray();
+         //jsonArray.add(0, "http://tech\\.sina\\.com\\.cn/t/\\w/\\d+-\\d+-\\d+\\d+\\.shtml");//spider single url pattern
+         //jsonArray.add(1,"http://tech\\.sina\\.com\\.cn/t/\\d+-\\d+-\\d+\\d+\\.shtml");//spider single url pattern,when php use(\\->\\\\)
+         //jsonObject.element("urlPattern", jsonArray);
          JSONObject obj = new JSONObject();
          obj.element("title", "h1#artibodyTitle");
          obj.element("pubdate", "span#pub_date");

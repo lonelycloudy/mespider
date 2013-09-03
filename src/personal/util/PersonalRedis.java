@@ -81,6 +81,7 @@ public class PersonalRedis{
 			//jedis.hset(channel, field, value);
 			System.out.println("PRSET:"+str);
 		}
+		jedis.disconnect();
     }
 	/**
 	 * 用Url验证9380/0号表中是否存在,如已存在则跳过(排重)
@@ -90,6 +91,7 @@ public class PersonalRedis{
 		Jedis jedis = new Jedis(PersonalRedis.redis_host,PersonalRedis.aggregate_port);
 		jedis.select(PersonalRedis.aggregate_table);
 		String data = jedis.get(md5url);
+		jedis.disconnect();
 		if(data != null){
 			return true;
 		}else{
@@ -105,6 +107,7 @@ public class PersonalRedis{
 		Jedis jedis = new Jedis(PersonalRedis.redis_host,PersonalRedis.redis_port);
 		jedis.select(PersonalRedis.redis_table);
 		String foo = jedis.get(channel);
+		jedis.disconnect();
 		if(foo != null){
 			//System.out.println("G"+foo);
 			return foo;
@@ -137,6 +140,7 @@ public class PersonalRedis{
 			//jedis.hset("liuxin_rule", "seed", "{}");
 			System.out.println("S"+str);
 		}
+		jedis.disconnect();
 		return uidx;
     }
 	/**
@@ -146,6 +150,7 @@ public class PersonalRedis{
 		Jedis jedis = new Jedis(PersonalRedis.redis_host,PersonalRedis.aggregate_port);
 		jedis.select(PersonalRedis.aggregate_table);
 		String flag = jedis.set(md5url,data);
+		jedis.disconnect();
 		return flag;
 	}
 	/*

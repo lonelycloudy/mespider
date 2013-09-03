@@ -13,11 +13,19 @@ import java.util.regex.Pattern;
 public class Test{
 	
 	public static void main(String[] args) throws ParseException{
-	    //Test.generateChannel("http://tech.sina.com.cn/t/2012-11-12/12247790473.shtml");
-		long current = System.currentTimeMillis();
-		System.out.println(current);
+		String t = "text/html; charset=GBK";
+		String t1 = "text/html; charset=utf-8";
+		String t2 = "text/html; charset=UTF-8";
+		String t3 = "text/html; charset=GB2312";
+		System.out.println(getPageCharset(t));
+		System.out.println(getPageCharset(t1));
+		System.out.println(getPageCharset(t2));
+		System.out.println(getPageCharset(t3));
+		//Test.generateChannel("http://tech.sina.com.cn/t/2012-11-12/12247790473.shtml");
+		//long current = System.currentTimeMillis();
+		//System.out.println(current);
 		//System.out.println(currentTimeStamp());
-		System.out.println(currentTime());
+		//System.out.println(currentTime());
 		String a = "http://tech.sina.com.cn/t/apple/2013-08-28/03238682257.shtml";
 	    String b = "http://tech.sina.com.cn/t/2013-08-27/01188677643.shtml";
 	    String c = "http://roll.tech.sina.com.cn/tele/gj/index.shtml";
@@ -95,6 +103,22 @@ public class Test{
 		//String current = dateFormat.format(now);//2013-09-02 09:22:59
 		Long current = now.getTime();//1378113779718
 		return current;
+	}
+	/**
+	 * 
+	 * @param contentType url
+	 * @return
+	 */
+	public static String getPageCharset(String contentType){
+		String[] tt = contentType.split("\\;");
+		int ttlen = tt.length;
+		if(ttlen <2){
+			return "";
+		}else{
+			String temp = tt[1];
+			String[] ttt = temp.split("\\=");
+			return ttt[1];
+		}
 	}
 }
 /**

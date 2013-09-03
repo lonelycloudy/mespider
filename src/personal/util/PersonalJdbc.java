@@ -23,8 +23,8 @@ public class PersonalJdbc {
 	private		String url = "jdbc:mysql://192.168.0.193:3306/test";//"jdbc:mysql://localhost:3306/myjsp";//连接url
 	private		String username="boy";//"root";//用户名
 	private		String password ="boy"; //"ictspace";//密码
-	private 	java.sql.Connection mConnection=null;//连接
-	private 	java.sql.Statement mStatement=null;//资源
+	private 	static java.sql.Connection mConnection=null;//连接
+	private 	static java.sql.Statement mStatement=null;//资源
 	private 	ResultSet mResultSet=null;//记录集合
 	
 	//connect to Mysql
@@ -33,17 +33,22 @@ public class PersonalJdbc {
 		ResultSet mResultSet = null;
 		Connection mConnection =null;
 		//String sql = "select * from test";
-		try{
-			Class.forName(this.dbDriver).newInstance();
-			//获取数据库连接
-			this.mConnection =   DriverManager.getConnection(this.url,this.username,this.password);
-			this.mStatement = this.mConnection.createStatement();
-		}catch(ClassNotFoundException e){
-			System.out.println("Class Not Found JDBC");
-			e.printStackTrace();
-		}catch(SQLException sqle){
-			System.out.println("Could not connect db");
-			sqle.printStackTrace();
+		if(this.mConnection == null){
+			try{
+				Class.forName(this.dbDriver).newInstance();
+				//获取数据库连接
+				this.mConnection =   DriverManager.getConnection(this.url,this.username,this.password);
+				this.mStatement = this.mConnection.createStatement();
+				String sql = "set names utf8";
+				this.mStatement = this.mConnection.prepareStatement(sql);
+				this.mStatement.executeQuery(sql);
+			}catch(ClassNotFoundException e){
+				System.out.println("Class Not Found JDBC");
+				e.printStackTrace();
+			}catch(SQLException sqle){
+				System.out.println("Could not connect db");
+				sqle.printStackTrace();
+			}
 		}
 	}
 	//close
