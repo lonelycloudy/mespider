@@ -134,16 +134,18 @@ public class SinaExtractor extends Extractor {
 							//for(Element article : articles){}
 							//Element eTitle = listdoc.getElementById("artibodyTitle");
 							Element eTitle = listdoc.select(singleRule.getString("title")).first(); 
-							String title = eTitle.text();
+							String title = eTitle.text().toString();
 							//title = new String(title.getBytes("UTF-8"),"UTF-8");
 							Element ePubdate = listdoc.select(singleRule.getString("pubdate")).first();
 							String pubdate = ePubdate.text();
 							String pubdate1 = Test.currentTime();
+							String pubdate2 = Test.currentTime10();
 							Element eContent = listdoc.select(singleRule.getString("content")).first();
-							String itemcontent = eContent.text();
-							//itemcontent = new String(itemcontent.getBytes("UTF-8"),"UTF-8");
-							//String summary = itemcontent.substring(0, 200);
-							//itemcontent = new String(itemcontent.getBytes());
+							String itemcontent = eContent.text().toString();
+							//itemcontent =  Test.gbToUtf8(itemcontent);
+							//itemcontent = new String(itemcontent.getBytes(pageCharset),"UTF-8");//ISO-8859-1 UTF-8
+							//title =  Test.gbToUtf8(title);
+							//title = new String(title.getBytes(pageCharset),"UTF-8");
 							//mysql labs
 							PersonalJdbc jdbc = new PersonalJdbc();
 							jdbc.getConnection();
@@ -154,7 +156,7 @@ public class SinaExtractor extends Extractor {
 							if(inFlag == true){//insert succ
 								System.out.println("S: "+insertSql);
 								String md5Url = PersonalMd5.MyMd5(url.getBytes());//md5 url
-								String data = uidx+'@'+pubdate1;
+								String data = ""+uidx+"@"+pubdate2+"";
 								String eflag = PersonalRedis.setRedisLabsURL(md5Url,data);
 								System.out.println("IDA: "+data);
 								//System.out.println("EI: "+uidx+",title"+title+"md5Url"+md5Url);//+"source"+source+"sourceUrl"+sourceUrl

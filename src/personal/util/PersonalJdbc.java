@@ -1,5 +1,6 @@
 package personal.util;
 
+import java.io.UnsupportedEncodingException;
 import java.sql.DriverManager;
 import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.Statement;
@@ -20,7 +21,7 @@ import java.util.List;
 public class PersonalJdbc {
     
 	private		String dbDriver = "com.mysql.jdbc.Driver";//驱动类型
-	private		String url = "jdbc:mysql://192.168.0.193:3306/test";//"jdbc:mysql://localhost:3306/myjsp";//连接url
+	private		String url = "jdbc:mysql://192.168.0.193:3306/test?characterEncoding=UTF-8";//"jdbc:mysql://localhost:3306/myjsp";//连接url
 	private		String username="boy";//"root";//用户名
 	private		String password ="boy"; //"ictspace";//密码
 	private 	static java.sql.Connection mConnection=null;//连接
@@ -33,22 +34,20 @@ public class PersonalJdbc {
 		ResultSet mResultSet = null;
 		Connection mConnection =null;
 		//String sql = "select * from test";
-		if(this.mConnection == null){
-			try{
-				Class.forName(this.dbDriver).newInstance();
-				//获取数据库连接
-				this.mConnection =   DriverManager.getConnection(this.url,this.username,this.password);
-				this.mStatement = this.mConnection.createStatement();
-				String sql = "set names utf8";
-				this.mStatement = this.mConnection.prepareStatement(sql);
-				this.mStatement.executeQuery(sql);
-			}catch(ClassNotFoundException e){
-				System.out.println("Class Not Found JDBC");
-				e.printStackTrace();
-			}catch(SQLException sqle){
-				System.out.println("Could not connect db");
-				sqle.printStackTrace();
-			}
+		try{
+			Class.forName(this.dbDriver).newInstance();
+			//获取数据库连接
+			this.mConnection =   DriverManager.getConnection(this.url,this.username,this.password);
+			this.mStatement = this.mConnection.createStatement();
+			String sql = "set names utf8";
+			this.mStatement = this.mConnection.prepareStatement(sql);
+			this.mStatement.executeQuery(sql);
+		}catch(ClassNotFoundException e){
+			System.out.println("Class Not Found JDBC");
+			e.printStackTrace();
+		}catch(SQLException sqle){
+			System.out.println("Could not connect db");
+			sqle.printStackTrace();
 		}
 	}
 	//close
@@ -78,6 +77,7 @@ public class PersonalJdbc {
 		try{
 			mStatement = mConnection.prepareStatement(sql);
 			mStatement.executeUpdate(sql);
+			return true;
 		} catch(SQLException e){
 			System.out.println("Insert table Error");
 			e.printStackTrace();
@@ -135,13 +135,18 @@ public class PersonalJdbc {
 		}
 	}
 	//use demo:insert ,delete,update,select
-	public static void main(String args[]) throws SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException{
+	public static void main(String args[]) throws SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException, UnsupportedEncodingException{
 		PersonalJdbc jd = new PersonalJdbc();
 		jd.getConnection();
 		String sql = "select * from documents";
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss");//kk for 24,h for 12
 		String current = df.format(new Date());
-		String insert = "insert into documents(group_id,group_id2,date_added,title,content) VALUES ("+2+","+9+",'"+current+"','titlejava','contentjava')";
+		String str1 = "中国";
+		String str2 = "人民";
+		String content = Test.gbToUtf8(str1);
+		String title = Test.gbToUtf8(str2);
+		//String insert = "insert into documents(group_id,group_id2,date_added,title,content) VALUES ("+2+","+9+",'"+current+"','titlejava','contentjava')";
+		String insert = "insert into ictspace_entry_content(id,title,publishTime,channel,content,originalURL,source) VALUES (22034502,'"+title+"','2013-09-03 09:03:38','cn.com.sina.tech','"+content+"','http\\://tech\\.sina\\.com\\.cn/t/2013-09-03/03458701375\\.shtml','heritrix')";
 		String update = "update documents set group_id2=11 where id=5";
 		String delete = "DELETE FROM documents ORDER BY id DESC LIMIT 1";
 		System.out.println(insert);
