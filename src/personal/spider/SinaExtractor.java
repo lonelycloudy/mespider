@@ -36,6 +36,7 @@ import personal.util.TestJson;
 import personal.util.PersonalRedis;
 import personal.util.PersonalMd5;
 import personal.util.PersonalJdbc;
+import personal.util.PersonalSphx;
 /**
  * extends Extractor for Filter tianya url
  * 提取URL匹配
@@ -141,8 +142,10 @@ public class SinaExtractor extends Extractor {
 							String pubdate1 = Test.currentTime();
 							String pubdate2 = Test.currentTime10();
 							Element eContent = listdoc.select(singleRule.getString("content")).first();
-							String itemcontent = eContent.text().toString();
-							//itemcontent =  Test.gbToUtf8(itemcontent);
+							//String itemcontent = eContent.text().toString(); text 
+							String itemcontent = eContent.html().toString();//html
+							itemcontent =  Test.filterString(itemcontent,url);
+							String summary = Test.strCut(itemcontent, 127, "...");
 							//itemcontent = new String(itemcontent.getBytes(pageCharset),"UTF-8");//ISO-8859-1 UTF-8
 							//title =  Test.gbToUtf8(title);
 							//title = new String(title.getBytes(pageCharset),"UTF-8");
@@ -150,7 +153,7 @@ public class SinaExtractor extends Extractor {
 							PersonalJdbc jdbc = new PersonalJdbc();
 							jdbc.getConnection();
 							long uidx = PersonalRedis.getCurrentIdForLabs();
-							String insertSql = "insert into ictspace_entry_content(id,title,publishTime,channel,content,originalURL,source) VALUES ("+uidx+",'"+title+"','"+pubdate1+"','"+currentChannel+"','"+itemcontent+"','"+url+"','heritrix')";
+							String insertSql = "insert into ictspace_entry_content(id,title,summary,publishTime,channel,content,originalURL,source) VALUES ("+uidx+",'"+title+"','"+summary+"','"+pubdate1+"','"+currentChannel+"','"+itemcontent+"','"+url+"','heritrix')";
 							//String rtSql = "insert into labsrt(id,title,publishtime,channel,content,summary) VALUES ("+uidx+",'"+title+"','"+pubdate1+"','"+currentChannel+"','"+itemcontent+"','"+summary+"')";
 							boolean inFlag = jdbc.insertSQL(insertSql);
 							if(inFlag == true){//insert succ
@@ -159,6 +162,15 @@ public class SinaExtractor extends Extractor {
 								String data = ""+uidx+"@"+pubdate2+"";
 								String eflag = PersonalRedis.setRedisLabsURL(md5Url,data);
 								System.out.println("IDA: "+data);
+								String insertRT = "insert into labsrt (id,author,title,summary,keywords,channel,content,publishtime) VALUES ("+uidx+",'','"+title+"','"+summary+"','','"+currentChannel+"','"+itemcontent+"','"+pubdate2+"'";
+								PersonalSphx spx  = new PersonalSphx();
+								spx.getConnection();
+								boolean sphxinFlag = spx.insertSQL(insertRT);
+								if(sphxinFlag == true){
+									System.out.println("SPHXS: "+insertRT);
+								}else{
+									System.out.println("SPHXF: "+insertRT);
+								}
 								//System.out.println("EI: "+uidx+",title"+title+"md5Url"+md5Url);//+"source"+source+"sourceUrl"+sourceUrl
 							}else{//insert faild
 								System.out.println("F: "+insertSql);

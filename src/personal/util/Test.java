@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.net.URI;
 
 /**
  * 底层函数实现,Java函数编写示例
@@ -13,8 +14,10 @@ import java.util.regex.Pattern;
  * */
 public class Test{
 	
-	public static void main(String[] args) throws ParseException{
-		String t = "text/html; charset=GBK";
+	public static void main(String[] args) throws ParseException{	
+		String content = "<div id='artibody'> <div><a target='_blank' href='http://stock.finance.sina.com.cn/usstock/quotes/NOK.html'><img alt='诺基亚周二收盘大涨31%微软跌幅接近5%' src='http://image.sinajs.cn/newchart/png/min/us/NOK.png'></div> <p>新浪科技讯 北京时间9月4日早间消息，截至美国股市周二收盘，</p><br><br/><p>&#12288;&#12288;早前开盘的芬兰赫尔辛基股市中，诺基亚亦大幅上涨，涨超40%。</p></div>";
+		//System.out.println(filterString(content));
+		/*String t = "text/html; charset=GBK";
 		String t1 = "text/html; charset=utf-8";
 		String t2 = "text/html; charset=UTF-8";
 		String t3 = "text/html; charset=GB2312";
@@ -22,6 +25,7 @@ public class Test{
 		System.out.println(getPageCharset(t1));
 		System.out.println(getPageCharset(t2));
 		System.out.println(getPageCharset(t3));
+		*/
 		//Test.generateChannel("http://tech.sina.com.cn/t/2012-11-12/12247790473.shtml");
 		//long current = System.currentTimeMillis();
 		//System.out.println(current);
@@ -177,7 +181,82 @@ public class Test{
             }   
         }   
         return sb.toString();   
-    }  
+    }
+	/***
+	 * Filter Spider Content
+	 * @param tempcontent
+	 * @return
+	 */
+	public static String filterString(String tempcontent,String currentUrl){
+		tempcontent.replaceAll("@\\<script[^>]*?>.*?</script>@si", "");
+		tempcontent.replaceAll("@\\<style[^>]*?>.*?</style>@si", "");
+		tempcontent.replaceAll("@\\<!--.*?-->@si", "");
+		tempcontent.replaceAll("/　　/Uis", "");
+		tempcontent.replaceAll("/<p.*>/Uis", "  ");
+		tempcontent.replaceAll("/\\<\\/p\\>/is", "\r\n\r\n");
+		tempcontent.replaceAll("/\\<\\/div\\>/is", "\\<\\/div\\>\r\n");
+		tempcontent.replaceAll("/\\<br \\/>/is", "\r\n");
+		tempcontent.replaceAll("/\\<br\\>/is", "\r\n");
+		StripTags strip = new StripTags();
+		tempcontent = strip.parse(tempcontent,"<img>");//just allow img,from baidu net
+		//tempcontent.replaceAll("/<\\s*img\\s+([^>]*)\\s*>/", "");
+		tempcontent.replaceAll("<\\s*img\\s*(?:[^>]*)src\\s*=\\s*([^>]+)", "$1");
+		//bellow proc img
+		//Pattern p = Pattern.compile("<img[^>]+src\\s*=\\s*['\"]([^'\"]+)['\"][^>]*>");//<img[^<>]*src=[\'\"]([0-9A-Za-z.\\/]*)[\'\"].(.*?)>");
+        //Matcher m = p.matcher(tempcontent);
+        //System.out.println(m.find());
+        //System.out.println(m.groupCount());
+        //while(m.find()){
+          //  System.out.println(m.group()+"-------------↓↓↓↓↓↓");
+           // System.out.println(m.group(1));
+        //}
+		
+		//tempcontent.replaceAll("(<img.*?)align=([\"\\'])?.*?(?(2)\\2|\\s)([^\\>]+\\>)/is", "$1$3");
+		tempcontent  = relativeToabsolute(tempcontent,currentUrl);//convert relative link to absolute link
+		return tempcontent;
+	}
+	/***
+	 * Proc content's relative url
+	 * @param content
+	 * @param feedUrl
+	 * @return
+	 */
+	public static String relativeToabsolute(String content,String currentUrl){
+		String[] hosts = currentUrl.split("/");
+		if(hosts[0] == ""){
+			return content;
+		}else{
+			content = content.replaceAll("/src=\"\\//", "src=\\"+hosts[0]);
+			return content;
+		}
+	}
+	/***
+	 * Cut String 
+	 * @param text length endWith
+	 * @return
+	 */
+	public static String strCut(String text,int length,String endWith){
+		int textLength = text.length();  
+        int byteLength = 0;  
+        StringBuffer returnStr =  new StringBuffer();  
+        for(int i = 0; i<textLength && byteLength < length*2; i++){  
+            String str_i = text.substring(i, i+1);   
+            if(str_i.getBytes().length == 1){//英文  
+                byteLength++;  
+            }else{//中文  
+                byteLength += 2 ;  
+            }  
+            returnStr.append(str_i);  
+        }  
+        try {  
+            if(byteLength<text.getBytes("GBK").length){//getBytes("GBK")每个汉字长2，getBytes("UTF-8")每个汉字长度为3  
+                returnStr.append(endWith);  
+            }  
+        } catch (UnsupportedEncodingException e) {  
+            e.printStackTrace();  
+        }  
+        return returnStr.toString();  
+	}
 }
 /**
 javac -d . personal/util/Test.java
