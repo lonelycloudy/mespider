@@ -57,7 +57,7 @@ public class SinaExtractor extends Extractor {
 	public static final String PATTERN_SINA_LIST = "http://tech.sina.com.cn";
 	//3rd preg pattern for a
 	public static final String PATTERN_A_HREF = "<a\\s+href\\s*=\\s*(\"([^\"]*)\"|[^\\s>])\\s*>";
-	public static final String OUTPUTS = "mongodb";//mongodb,mysql
+	public static final String OUTPUTS = "mysql";//mongodb,mysql
 	public static final boolean USERT = false;//coreseekRT flag
 	
 	public String name = "";
@@ -154,16 +154,16 @@ public class SinaExtractor extends Extractor {
 							if(imgs != null){
 								for(Element img:imgs){//extract img element
 									if(img.attr("src") !=null){
-										imgStr+="<img src=\""+img.attr("src")+"\"> \n\r";
+										imgStr+="<img src=\""+img.attr("src")+"\">";
 									}
 								}
 							}
-							//String itemcontent = eContent.text().toString(); text 
-							String itemcontent = eContent.html().toString();//html
+							String itemcontent = eContent.text().toString(); //text 
+							//String itemcontent = eContent.html().toString();//html
 							itemcontent =  Test.filterString(itemcontent,url);//proc html to text
 							imgStr = Test.relativeToabsolute(imgStr,url);//proc img's url to absolute url
-							String summary = Test.strCut(itemcontent, 127, "...");//filter content to summary
-							itemcontent = imgStr+itemcontent;//img str extract,append before content
+							String summary = Test.strCut(eContent.text().toString(), 127, "...");//filter content to summary
+							itemcontent = imgStr+"\n"+itemcontent;//img str extract,append before content
 							//itemcontent = new String(itemcontent.getBytes(pageCharset),"UTF-8");//ISO-8859-1 UTF-8
 							//title =  Test.gbToUtf8(title);
 							//title = new String(title.getBytes(pageCharset),"UTF-8");
@@ -174,7 +174,7 @@ public class SinaExtractor extends Extractor {
 								PersonalJdbc jdbc = new PersonalJdbc();
 								jdbc.getConnection();
 								//long uidx = PersonalRedis.getCurrentIdForLabs();
-								String insertSql = "insert into ictspace_entry_content(id,title,summary,publishTime,channel,content,originalURL,source) VALUES ("+uidx+",'"+title+"','"+summary+"','"+pubdate1+"','"+currentChannel+"','"+itemcontent+"','"+url+"','heritrix')";
+								String insertSql = "insert into ictspace_entry_content(id,title,summary,publishTime,channel,content,originalURL,source) VALUES ("+uidx+",'"+title+"','"+summary+"','"+pubdate1+"','"+currentChannel+"','"+itemcontent.toString()+"','"+url+"','heritrix')";
 								//String rtSql = "insert into labsrt(id,title,publishtime,channel,content,summary) VALUES ("+uidx+",'"+title+"','"+pubdate1+"','"+currentChannel+"','"+itemcontent+"','"+summary+"')";
 								boolean inFlag = jdbc.insertSQL(insertSql);
 								if(inFlag == true){//insert succ

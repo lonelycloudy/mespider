@@ -191,16 +191,23 @@ public class Test{
 	 * @return
 	 */
 	public static String filterString(String tempcontent,String currentUrl){
-		tempcontent.replaceAll("/\\<script[^>]*?>.*?</script/si", "");
-		tempcontent.replaceAll("/\\<style[^>]*?>.*?</style>/si", "");
-		tempcontent.replaceAll("/\\<!--.*?-->@si", "");
-		tempcontent.replaceAll("/\\<!--.*?-->/", "");
-		tempcontent.replaceAll("/　　/Uis", "");
-		tempcontent.replaceAll("/<p.*>/Uis", "  ");
-		tempcontent.replaceAll("/\\<\\/p\\>/is", "\r\n\r\n");
-		tempcontent.replaceAll("/\\<\\/div\\>/is", "\\<\\/div\\>\r\n");
-		tempcontent.replaceAll("/\\<br \\/>/is", "\r\n");
-		tempcontent.replaceAll("/\\<br\\>/is", "\r\n");
+		tempcontent.replaceAll("<[//s]*?script[^>]*?>[//s//S]*?<[//s]*?///[//s]*?script[//s]*?>", "");
+		tempcontent.replaceAll("<script>*?<\\/script>", "");
+		tempcontent.replaceAll("<script\\s type=\"text\\/javascript\">*?<\\/script>", "");
+		tempcontent.replaceAll("<[//s]*?style[^>]*?>[//s//S]*?<[//s]*?///[//s]*?style[//s]*?>", "");
+		tempcontent.replaceAll("<style>.*?</style>","");
+		tempcontent.replaceAll("<style type=\"text\\/css\">.*?<\\/style>", "");
+		tempcontent.replaceAll("<link.*?>", "");
+		tempcontent.replaceAll("<link.*?\\/>", "");
+		tempcontent.replaceAll("<!--.*?\\s-->", "");
+		tempcontent.replaceAll("<!--.*?-->", "");
+		tempcontent.replaceAll("\n", "");
+		tempcontent.replaceAll("\r", "");
+		//tempcontent.replaceAll("<p.*>/is", "\t");
+		//tempcontent.replaceAll("<\\/p>/is", "\n");
+		tempcontent.replaceAll("<\\/div>/is", "<\\/div>\n\n");
+		tempcontent.replaceAll("<br \\/>/is", "\n");
+		tempcontent.replaceAll("<br\\>/is", "\n");
 		
 		String regEx_script = "<[//s]*?script[^>]*?>[//s//S]*?<[//s]*?///[//s]*?script[//s]*?>"; // 定义script的正则表达式{或<script[^>]*?>[//s//S]*?<///script>      
         String regEx_style = "<[//s]*?style[^>]*?>[//s//S]*?<[//s]*?///[//s]*?style[//s]*?>"; // 定义style的正则表达式{或<style[^>]*?>[//s//S]*?<///style>      
