@@ -138,6 +138,36 @@ public class PersonalMongodb {
 			}
 	}
 	/***
+	 * Inert Data
+	 * @param documentMap
+	 * @throws UnknownHostException
+	 */
+	public static boolean insertDocument(Map documentMap) throws UnknownHostException{
+		try{
+			Mongo mongo =new Mongo("192.168.0.193", 27018);
+			DB db = mongo.getDB("ext");
+			// get a single collection
+			DBCollection collection = db.getCollection("part02");
+			//Map documentMap =new HashMap();
+			/*documentMap.put("database", "mkyongDB");
+			documentMap.put("table", "hosting");
+			Map documentMapDetail =new HashMap();
+			documentMapDetail.put("records", "99");
+			documentMapDetail.put("index", "vps_index1");
+			documentMapDetail.put("active", "true");
+			documentMap.put("detail", documentMapDetail);*/
+			collection.insert(new BasicDBObject(documentMap));
+			//WriteResult wresult = collection.save(new BasicDBObject(documentMap));
+			//return wresult.getN(); //int
+			return true;
+		}catch(UnknownHostException e){
+			e.printStackTrace();
+		 }catch(MongoException e){
+			e.printStackTrace();
+		 }
+		return false;
+	}
+	/***
 	 * update hosting:hostB
 	 * @throws UnknownHostException
 	 */

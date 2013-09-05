@@ -15,8 +15,9 @@ import java.net.URI;
 public class Test{
 	
 	public static void main(String[] args) throws ParseException{	
-		String content = "<div id='artibody'> <div><a target='_blank' href='http://stock.finance.sina.com.cn/usstock/quotes/NOK.html'><img alt='诺基亚周二收盘大涨31%微软跌幅接近5%' src='http://image.sinajs.cn/newchart/png/min/us/NOK.png'></div> <p>新浪科技讯 北京时间9月4日早间消息，截至美国股市周二收盘，</p><br><br/><p>&#12288;&#12288;早前开盘的芬兰赫尔辛基股市中，诺基亚亦大幅上涨，涨超40%。</p></div>";
-		//System.out.println(filterString(content));
+		String content = "<div id=\"artibody\"> <div><a target=\"_blank\" href=\"http://stock.finance.sina.com.cn/usstock/quotes/NOK.html\"><img alt=\"诺基亚周二收盘大涨31%微软跌幅接近5%\" src=\"http://image.sinajs.cn/newchart/png/min/us/NOK.png\"></a></div> <p>新浪科技讯 北京时间9月4日早间消息，截至美国股市周二收盘，</p><br><br/><p>&#12288;&#12288;早前开盘的芬兰赫尔辛基股市中，诺基亚亦大幅上涨，涨超40%。</p></div>";
+		String newcontent = filterString(content,"http://tech.sina.com.cn/t/2013-08-23/08318668243.shtml"); 
+		System.out.println(newcontent.toString());
 		/*String t = "text/html; charset=GBK";
 		String t1 = "text/html; charset=utf-8";
 		String t2 = "text/html; charset=UTF-8";
@@ -197,8 +198,8 @@ public class Test{
 		tempcontent.replaceAll("/\\<\\/div\\>/is", "\\<\\/div\\>\r\n");
 		tempcontent.replaceAll("/\\<br \\/>/is", "\r\n");
 		tempcontent.replaceAll("/\\<br\\>/is", "\r\n");
-		StripTags strip = new StripTags();
-		tempcontent = strip.parse(tempcontent,"<img>");//just allow img,from baidu net
+		//StripTags strip = new StripTags();
+		//tempcontent = strip.parse(tempcontent,"<img>");//just allow img,from baidu net
 		//tempcontent.replaceAll("/<\\s*img\\s+([^>]*)\\s*>/", "");
 		tempcontent.replaceAll("<\\s*img\\s*(?:[^>]*)src\\s*=\\s*([^>]+)", "$1");
 		//bellow proc img

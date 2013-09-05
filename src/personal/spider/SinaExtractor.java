@@ -10,6 +10,8 @@ package personal.spider;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -37,6 +39,8 @@ import personal.util.PersonalRedis;
 import personal.util.PersonalMd5;
 import personal.util.PersonalJdbc;
 import personal.util.PersonalSphx;
+import personal.util.PersonalMongodb;
+
 /**
  * extends Extractor for Filter tianya url
  * 提取URL匹配
@@ -53,6 +57,9 @@ public class SinaExtractor extends Extractor {
 	public static final String PATTERN_SINA_LIST = "http://tech.sina.com.cn";
 	//3rd preg pattern for a
 	public static final String PATTERN_A_HREF = "<a\\s+href\\s*=\\s*(\"([^\"]*)\"|[^\\s>])\\s*>";
+	public static final String OUTPUTS = "mongodb";//mongodb,mysql
+	public static final boolean USERT = false;//coreseekRT flag
+	
 	public String name = "";
 	//construct
 	public SinaExtractor(String name){
@@ -150,34 +157,62 @@ public class SinaExtractor extends Extractor {
 							//title =  Test.gbToUtf8(title);
 							//title = new String(title.getBytes(pageCharset),"UTF-8");
 							//mysql labs
-							PersonalJdbc jdbc = new PersonalJdbc();
-							jdbc.getConnection();
 							long uidx = PersonalRedis.getCurrentIdForLabs();
-							String insertSql = "insert into ictspace_entry_content(id,title,summary,publishTime,channel,content,originalURL,source) VALUES ("+uidx+",'"+title+"','"+summary+"','"+pubdate1+"','"+currentChannel+"','"+itemcontent+"','"+url+"','heritrix')";
-							//String rtSql = "insert into labsrt(id,title,publishtime,channel,content,summary) VALUES ("+uidx+",'"+title+"','"+pubdate1+"','"+currentChannel+"','"+itemcontent+"','"+summary+"')";
-							boolean inFlag = jdbc.insertSQL(insertSql);
-							if(inFlag == true){//insert succ
-								System.out.println("S: "+insertSql);
-								String md5Url = PersonalMd5.MyMd5(url.getBytes());//md5 url
-								String data = ""+uidx+"@"+pubdate2+"";
-								String eflag = PersonalRedis.setRedisLabsURL(md5Url,data);
-								System.out.println("IDA: "+data);
-								String insertRT = "insert into labsrt (id,author,title,summary,keywords,channel,content,publishtime) VALUES ("+uidx+",'','"+title+"','"+summary+"','','"+currentChannel+"','"+itemcontent+"','"+pubdate2+"'";
-								PersonalSphx spx  = new PersonalSphx();
-								spx.getConnection();
-								boolean sphxinFlag = spx.insertSQL(insertRT);
-								if(sphxinFlag == true){
-									System.out.println("SPHXS: "+insertRT);
+							if(SinaExtractor.OUTPUTS == "mysql"){
+								//outputs to mysql
+								PersonalJdbc jdbc = new PersonalJdbc();
+								jdbc.getConnection();
+								//long uidx = PersonalRedis.getCurrentIdForLabs();
+								String insertSql = "insert into ictspace_entry_content(id,title,summary,publishTime,channel,content,originalURL,source) VALUES ("+uidx+",'"+title+"','"+summary+"','"+pubdate1+"','"+currentChannel+"','"+itemcontent+"','"+url+"','heritrix')";
+								//String rtSql = "insert into labsrt(id,title,publishtime,channel,content,summary) VALUES ("+uidx+",'"+title+"','"+pubdate1+"','"+currentChannel+"','"+itemcontent+"','"+summary+"')";
+								boolean inFlag = jdbc.insertSQL(insertSql);
+								if(inFlag == true){//insert succ
+									System.out.println("S: "+insertSql);
+									String md5Url = PersonalMd5.MyMd5(url.getBytes());//md5 url
+									String data = ""+uidx+"@"+pubdate2+"";
+									String eflag = PersonalRedis.setRedisLabsURL(md5Url,data);
+									System.out.println("IDA: "+data);
+									if(SinaExtractor.USERT == true){
+										String insertRT = "insert into labsrt (id,author,title,summary,keywords,channel,content,publishtime) VALUES ("+uidx+",'','"+title+"','"+summary+"','','"+currentChannel+"','"+itemcontent+"','"+pubdate2+"'";
+										PersonalSphx spx  = new PersonalSphx();
+										spx.getConnection();
+										boolean sphxinFlag = spx.insertSQL(insertRT);
+										if(sphxinFlag == true){
+											System.out.println("SPHXS: "+insertRT);
+										}else{
+											System.out.println("SPHXF: "+insertRT);
+										}
+										spx.close();
+									}
+									
+									//System.out.println("EI: "+uidx+",title"+title+"md5Url"+md5Url);//+"source"+source+"sourceUrl"+sourceUrl
+								}else{//insert faild
+									System.out.println("F: "+insertSql);
+									//System.out.println("EI: "+uidx+",title"+title+"pubdate"+pubdate);//+"source"+source+"sourceUrl"+sourceUrl
+								}					
+								jdbc.close();
+							}else if(SinaExtractor.OUTPUTS == "mongodb"){
+								//mongodb yuqing
+								Map<String,String> documentMap = new HashMap<String,String>();
+								documentMap.put("id", ""+uidx+"");
+								documentMap.put("title", title);
+								documentMap.put("summary", summary);
+								documentMap.put("publishTime", pubdate1.toString());
+								documentMap.put("channel", currentChannel);
+								documentMap.put("content", itemcontent);
+								documentMap.put("originalURL", url);
+								documentMap.put("source", "heritrix");
+								boolean mflag = PersonalMongodb.insertDocument(documentMap);
+								if(mflag == true){
+									System.out.println("MONS: "+mflag);
+									String md5Url = PersonalMd5.MyMd5(url.getBytes());//md5 url
+									String data = ""+uidx+"@"+pubdate2+"";
+									String eflag = PersonalRedis.setRedisLabsURL(md5Url,data);
 								}else{
-									System.out.println("SPHXF: "+insertRT);
+									System.out.println("MONF: "+url);
 								}
-								//System.out.println("EI: "+uidx+",title"+title+"md5Url"+md5Url);//+"source"+source+"sourceUrl"+sourceUrl
-							}else{//insert faild
-								System.out.println("F: "+insertSql);
-								//System.out.println("EI: "+uidx+",title"+title+"pubdate"+pubdate);//+"source"+source+"sourceUrl"+sourceUrl
 							}
-							jdbc.close();
-							//mongo yuqing
+							
 							this.addLinkFromString(curi,url,"",Link.NAVLINK_HOP);
 						}
 					} catch(Exception e){
