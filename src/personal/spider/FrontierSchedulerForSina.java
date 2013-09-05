@@ -82,11 +82,11 @@ public class FrontierSchedulerForSina extends FrontierScheduler {
     		//JSONArray urlPattern = channelRule.getJSONArray("urlPattern");
     		//JSONObject ruleList = channelRule.getJSONObject("ruleList");
     		if(uri.equals(seedURL)){//seed page
-    			System.out.println("FSEED"+uri);
+    			System.out.println("FSEED: "+uri);
     			getController().getFrontier().schedule(caUri);
     		}else{//single page 
     			if(uri.matches(itemRule.toString())){//need spider single page
-					System.out.println("MSY"+uri);
+					System.out.println("MSY: "+uri);
 					try {//need check unique or not,then check
 						String md5url = PersonalMd5.MyMd5(uri.getBytes());
 						boolean flag = PersonalRedis.getRedisUniqueInfo(md5url);
@@ -101,7 +101,7 @@ public class FrontierSchedulerForSina extends FrontierScheduler {
 						e.printStackTrace();
 					}
 				}else{//other single page,don't spider
-					System.out.println("MS-N"+uri);
+					System.out.println("MS-N: "+uri);
 				}
     		}
     	}

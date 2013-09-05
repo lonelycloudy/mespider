@@ -1,6 +1,8 @@
 package personal.util;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -189,19 +191,44 @@ public class Test{
 	 * @return
 	 */
 	public static String filterString(String tempcontent,String currentUrl){
-		tempcontent.replaceAll("@\\<script[^>]*?>.*?</script>@si", "");
-		tempcontent.replaceAll("@\\<style[^>]*?>.*?</style>@si", "");
-		tempcontent.replaceAll("@\\<!--.*?-->@si", "");
+		tempcontent.replaceAll("/\\<script[^>]*?>.*?</script/si", "");
+		tempcontent.replaceAll("/\\<style[^>]*?>.*?</style>/si", "");
+		tempcontent.replaceAll("/\\<!--.*?-->@si", "");
+		tempcontent.replaceAll("/\\<!--.*?-->/", "");
 		tempcontent.replaceAll("/　　/Uis", "");
 		tempcontent.replaceAll("/<p.*>/Uis", "  ");
 		tempcontent.replaceAll("/\\<\\/p\\>/is", "\r\n\r\n");
 		tempcontent.replaceAll("/\\<\\/div\\>/is", "\\<\\/div\\>\r\n");
 		tempcontent.replaceAll("/\\<br \\/>/is", "\r\n");
 		tempcontent.replaceAll("/\\<br\\>/is", "\r\n");
+		
+		String regEx_script = "<[//s]*?script[^>]*?>[//s//S]*?<[//s]*?///[//s]*?script[//s]*?>"; // 定义script的正则表达式{或<script[^>]*?>[//s//S]*?<///script>      
+        String regEx_style = "<[//s]*?style[^>]*?>[//s//S]*?<[//s]*?///[//s]*?style[//s]*?>"; // 定义style的正则表达式{或<style[^>]*?>[//s//S]*?<///style>      
+        String regEx_html = "<[^>]+>"; //html regx
+        String regEx_html1 = "<[^>]+";
+        String htmlStr = tempcontent; 
+        String textStr = "";
+        Pattern  p_script = Pattern.compile(regEx_script, Pattern.CASE_INSENSITIVE);      
+        Matcher m_script = p_script.matcher(htmlStr);      
+        htmlStr = m_script.replaceAll("");//replace script    
+
+        Pattern p_style = Pattern.compile(regEx_style, Pattern.CASE_INSENSITIVE);      
+        Matcher m_style = p_style.matcher(htmlStr);      
+        htmlStr = m_style.replaceAll("");//replace style
+
+        Pattern p_html = Pattern.compile(regEx_html, Pattern.CASE_INSENSITIVE);      
+        Matcher m_html = p_html.matcher(htmlStr);      
+        htmlStr = m_html.replaceAll("");//replace html
+
+        Pattern p_html1 = Pattern.compile(regEx_html1, Pattern.CASE_INSENSITIVE);      
+        Matcher m_html1 = p_html1.matcher(htmlStr);      
+        htmlStr = m_html1.replaceAll("");//replace html
+        
+        textStr = htmlStr;      
 		//StripTags strip = new StripTags();
 		//tempcontent = strip.parse(tempcontent,"<img>");//just allow img,from baidu net
 		//tempcontent.replaceAll("/<\\s*img\\s+([^>]*)\\s*>/", "");
-		tempcontent.replaceAll("<\\s*img\\s*(?:[^>]*)src\\s*=\\s*([^>]+)", "$1");
+		//tempcontent.replaceAll("<\\s*img\\s*(?:[^>]*)src\\s*=\\s*([^>]+)", "$1");
 		//bellow proc img
 		//Pattern p = Pattern.compile("<img[^>]+src\\s*=\\s*['\"]([^'\"]+)['\"][^>]*>");//<img[^<>]*src=[\'\"]([0-9A-Za-z.\\/]*)[\'\"].(.*?)>");
         //Matcher m = p.matcher(tempcontent);
@@ -213,9 +240,31 @@ public class Test{
         //}
 		
 		//tempcontent.replaceAll("(<img.*?)align=([\"\\'])?.*?(?(2)\\2|\\s)([^\\>]+\\>)/is", "$1$3");
-		tempcontent  = relativeToabsolute(tempcontent,currentUrl);//convert relative link to absolute link
-		return tempcontent;
+		//tempcontent  = relativeToabsolute(tempcontent,currentUrl);//convert relative link to absolute link
+		return textStr;
 	}
+	/***
+	 * extract content's img
+	 * @param htmlStr
+	 * @return
+	 */
+	public static List<String> getImgStr(String htmlStr){        
+        String img="";        
+        Pattern p_image;        
+        Matcher m_image;        
+        List<String> pics = new ArrayList<String>();     
+        String regEx_img = "<img.*src=(.*?)[^>]*?>"; //图片链接地址        
+        p_image = Pattern.compile(regEx_img,Pattern.CASE_INSENSITIVE);        
+        m_image = p_image.matcher(htmlStr);      
+        while(m_image.find()){        
+            img = img + "," + m_image.group();        
+            Matcher m  = Pattern.compile("src=\"?(.*?)(\"|>|\\s+)").matcher(img); //匹配src     
+            while(m.find()){     
+               pics.add(m.group(1));     
+            }     
+        }        
+        return pics;        
+    }       
 	/***
 	 * Proc content's relative url
 	 * @param content

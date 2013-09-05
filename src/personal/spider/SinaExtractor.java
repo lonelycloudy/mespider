@@ -149,10 +149,21 @@ public class SinaExtractor extends Extractor {
 							String pubdate1 = Test.currentTime();
 							String pubdate2 = Test.currentTime10();
 							Element eContent = listdoc.select(singleRule.getString("content")).first();
+							String imgStr = "  ";//
+							Elements imgs = eContent.select("img");
+							if(imgs != null){
+								for(Element img:imgs){//extract img element
+									if(img.attr("src") !=null){
+										imgStr+="<img src=\""+img.attr("src")+"\"> \n\r";
+									}
+								}
+							}
 							//String itemcontent = eContent.text().toString(); text 
 							String itemcontent = eContent.html().toString();//html
-							itemcontent =  Test.filterString(itemcontent,url);
-							String summary = Test.strCut(itemcontent, 127, "...");
+							itemcontent =  Test.filterString(itemcontent,url);//proc html to text
+							imgStr = Test.relativeToabsolute(imgStr,url);//proc img's url to absolute url
+							String summary = Test.strCut(itemcontent, 127, "...");//filter content to summary
+							itemcontent = imgStr+itemcontent;//img str extract,append before content
 							//itemcontent = new String(itemcontent.getBytes(pageCharset),"UTF-8");//ISO-8859-1 UTF-8
 							//title =  Test.gbToUtf8(title);
 							//title = new String(title.getBytes(pageCharset),"UTF-8");
