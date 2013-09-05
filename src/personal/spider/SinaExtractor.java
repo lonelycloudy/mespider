@@ -158,12 +158,12 @@ public class SinaExtractor extends Extractor {
 									}
 								}
 							}
-							String itemcontent = eContent.text().toString(); //text 
-							//String itemcontent = eContent.html().toString();//html
+							//String itemcontent = eContent.text().toString(); //text
+							String itemcontent = eContent.html().toString();//html
 							itemcontent =  Test.filterString(itemcontent,url);//proc html to text
 							imgStr = Test.relativeToabsolute(imgStr,url);//proc img's url to absolute url
-							String summary = Test.strCut(eContent.text().toString(), 127, "...");//filter content to summary
-							itemcontent = imgStr+"\n"+itemcontent;//img str extract,append before content
+							String summary = Test.strCut(eContent.text().toString(), 127, "...");//filter content to summary,table.summary tinytext to text for fixed insert error
+							itemcontent = imgStr+itemcontent;//img str extract,append before content
 							//itemcontent = new String(itemcontent.getBytes(pageCharset),"UTF-8");//ISO-8859-1 UTF-8
 							//title =  Test.gbToUtf8(title);
 							//title = new String(title.getBytes(pageCharset),"UTF-8");
@@ -174,9 +174,9 @@ public class SinaExtractor extends Extractor {
 								PersonalJdbc jdbc = new PersonalJdbc();
 								jdbc.getConnection();
 								//long uidx = PersonalRedis.getCurrentIdForLabs();
-								String insertSql = "insert into ictspace_entry_content(id,title,summary,publishTime,channel,content,originalURL,source) VALUES ("+uidx+",'"+title+"','"+summary+"','"+pubdate1+"','"+currentChannel+"','"+itemcontent.toString()+"','"+url+"','heritrix')";
+								String insertSql = "insert into ictspace_entry_content(id,title,summary,publishTime,channel,content,originalURL,source) VALUES ("+uidx+",'"+title.toString()+"','"+summary.toString()+"','"+pubdate1+"','"+currentChannel+"','"+itemcontent.toString()+"','"+url+"','heritrix')";
 								//String rtSql = "insert into labsrt(id,title,publishtime,channel,content,summary) VALUES ("+uidx+",'"+title+"','"+pubdate1+"','"+currentChannel+"','"+itemcontent+"','"+summary+"')";
-								boolean inFlag = jdbc.insertSQL(insertSql);
+								boolean inFlag = jdbc.insertSQL(insertSql.toString());
 								if(inFlag == true){//insert succ
 									System.out.println("S: "+insertSql);
 									String md5Url = PersonalMd5.MyMd5(url.getBytes());//md5 url
