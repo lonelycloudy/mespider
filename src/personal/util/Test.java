@@ -201,14 +201,12 @@ public class Test{
 		tempcontent.replaceAll("<link.*?\\/>", "");
 		tempcontent.replaceAll("<!--.*?\\s-->", "");
 		tempcontent.replaceAll("<!--.*?-->", "");
-		tempcontent.replaceAll("\n", "");
-		tempcontent.replaceAll("\r", "");
-		//tempcontent.replaceAll("<p.*>/is", "\t");
-		//tempcontent.replaceAll("<\\/p>/is", "\n");
-		tempcontent.replaceAll("<\\/div>/is", "<\\/div>\n\n");
-		tempcontent.replaceAll("<br \\/>/is", "\n");
-		tempcontent.replaceAll("<br\\>/is", "\n");
-		
+		tempcontent.replaceAll("/　　/Uis", "");
+		tempcontent.replaceAll("/<p.*>/Uis", "  ");
+		tempcontent.replaceAll("/\\<\\/p\\>/is", " ");//windows:\r\n,linux \r
+		tempcontent.replaceAll("/\\<\\/div\\>/is", "\\<\\/div\\> ");
+		tempcontent.replaceAll("/\\<br \\/>/is", "  ");
+		tempcontent.replaceAll("/\\<br\\>/is", "  ");
 		String regEx_script = "<[//s]*?script[^>]*?>[//s//S]*?<[//s]*?///[//s]*?script[//s]*?>"; // 定义script的正则表达式{或<script[^>]*?>[//s//S]*?<///script>      
         String regEx_style = "<[//s]*?style[^>]*?>[//s//S]*?<[//s]*?///[//s]*?style[//s]*?>"; // 定义style的正则表达式{或<style[^>]*?>[//s//S]*?<///style>      
         String regEx_html = "<[^>]+>"; //html regx

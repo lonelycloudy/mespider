@@ -31,6 +31,8 @@ import org.archive.util.HttpRecorder;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.safety.Cleaner;
+import org.jsoup.safety.Whitelist;
 import org.jsoup.select.Elements;
 
 import personal.util.Test;
@@ -57,7 +59,7 @@ public class SinaExtractor extends Extractor {
 	public static final String PATTERN_SINA_LIST = "http://tech.sina.com.cn";
 	//3rd preg pattern for a
 	public static final String PATTERN_A_HREF = "<a\\s+href\\s*=\\s*(\"([^\"]*)\"|[^\\s>])\\s*>";
-	public static final String OUTPUTS = "mysql";//mongodb,mysql
+	public static final String OUTPUTS = "mongodb";//mongodb,mysql
 	public static final boolean USERT = false;//coreseekRT flag
 	
 	public String name = "";
@@ -116,7 +118,7 @@ public class SinaExtractor extends Extractor {
 					//JSONArray urlPattern = channelRule.getJSONArray("urlPattern");
 					JSONObject singleRule = channelRule.getJSONObject("singleRule");//single page content rule
 					String itemRule = channelRule.getString("itemRule");//list a page
-					try{		
+					try{
 						Document listdoc = Jsoup.parse(content);
 						//jsoup parse String to Document 2013-08-02
 						if(url.equals(seedURL)){//list page
@@ -130,13 +132,40 @@ public class SinaExtractor extends Extractor {
 								  //linkText = new String(linkText.getBytes());
 								  if(linkHref != ""){//&& linkHref.contains("http://tech.sina.com.cn/t/" 
 									  if(linkHref.matches(itemRule)){//match list page's item
-										  System.out.println("Match: "+linkHref);
-										  this.addLinkFromString(curi,linkHref,"",Link.NAVLINK_HOP);
+										  String md5url = PersonalMd5.MyMd5(linkHref.getBytes());
+										  boolean flag = PersonalRedis.getRedisUniqueInfo(md5url);
+										  if(flag == true){//has spider that
+											  System.out.println("HMatch: "+linkHref);
+											  //this.addLinkFromString(curi,linkHref,"",Link.NAVLINK_HOP);
+										  }else{
+											  System.out.println("HNMatch: "+linkHref);
+											  this.addLinkFromString(curi,linkHref,"",Link.NAVLINK_HOP);
+										  }
 									  }
 								  }
 								}
 							}
 						}else{//single page
+							//remove some elements
+							listdoc.select("style").remove();//remove all  style
+							listdoc.select("script").remove();//remove all  script
+							//remove all img's:style,onclick,border,width,height,id,class,alt,align
+							listdoc.select("img").removeAttr("style");
+							listdoc.select("img").removeAttr("onclick");
+							listdoc.select("img").removeAttr("border");
+							listdoc.select("img").removeAttr("width");
+							listdoc.select("img").removeAttr("height");
+							listdoc.select("img").removeAttr("id");
+							listdoc.select("img").removeAttr("class");
+							listdoc.select("img").removeAttr("alt");
+							listdoc.select("img").removeAttr("align");
+							/*//below 6 line for filter elements
+							//Document doc = Jsoup.parseBodyFragment(html);
+							Whitelist whitelist = Whitelist.relaxed();//create relaxed filter
+							whitelist.addTags("span","div","font");
+							Cleaner cleaner = new Cleaner(whitelist);
+							listdoc = cleaner.clean(listdoc);//clean with filter clean
+							*/
 							//Elements articles = listdoc.select("div.blkContainer");
 							System.out.println("Y2");
 							//for(Element article : articles){}
@@ -160,6 +189,7 @@ public class SinaExtractor extends Extractor {
 							}
 							//String itemcontent = eContent.text().toString(); //text
 							String itemcontent = eContent.html().toString();//html
+							itemcontent = itemcontent.trim();
 							itemcontent =  Test.filterString(itemcontent,url);//proc html to text
 							imgStr = Test.relativeToabsolute(imgStr,url);//proc img's url to absolute url
 							String summary = Test.strCut(eContent.text().toString(), 127, "...");//filter content to summary,table.summary tinytext to text for fixed insert error

@@ -92,6 +92,7 @@ public class FrontierSchedulerForSina extends FrontierScheduler {
 						boolean flag = PersonalRedis.getRedisUniqueInfo(md5url);
 						if(flag == true){//has spider that
 							System.out.println("FY");
+							return ;
 						}else {//hasn't spider thath
 							System.out.println("FN");
 							getController().getFrontier().schedule(caUri);
